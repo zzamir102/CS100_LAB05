@@ -24,7 +24,8 @@ int main(int argc, char* argv[])
     sheet.set_selection(new Select_Contains(&sheet,"Last","Dole"));
     sheet.print_selection(std::cout);
     std::cout << std::endl;
-    
+   
+
     // Sample usage 2
     // sheet.set_selection(
     //     new Select_And(
