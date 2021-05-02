@@ -62,4 +62,29 @@ public:
 	}
   }
 };
+
+class Select_Not: public Select
+{
+protected:
+   Select* Exclude;
+public:
+   Select_Not(Select* avoid_Sel) {
+	Exclude = avoid_Sel;
+   }
+
+   ~Select_Not() {
+	delete Exclude;
+   }
+
+   virtual bool select(const Spreadsheet* sheet, int row) const {
+	if (Exclude->select(sheet, row) == true) {
+		return false;
+	}
+	else {
+		return true;
+	}
+
+   } 
+
+};
 #endif //__SELECT_HPP__
