@@ -143,6 +143,25 @@ TEST(Print_Selection, Select_NotSubString) {
 	EXPECT_EQ(out.str(), "Real Madrid Spurs Packers \nPSG Lakers Jets \n");
 }
 
+//-----------------------
+//Test for Select_Add
+
+TEST(Print_Selection, Select_AndSubString) {
+	Spreadsheet sheet;
+	sheet.set_column_names({"California", "Utah", "Nevada"});
+	sheet.add_row({"Los Angeles", "Salt Lake City", "Las Vegas"});
+	sheet.add_row({"Fontana", "Park City", "Carson City"});
+	sheet.add_row({"Riverside", "Ogden", "Reno"});
+	sheet.add_row({"Upland", "St. George", "Henderson"});
+	stringstream out;
+	sheet.set_selection(
+	    new Select_And(
+		new Select_Contains(&sheet, "California", "Fontana"),
+		new Select_Contains(&sheet, "Nevada", "Las Vegas")));
+	sheet.print_selection(out);
+	EXPECT_EQ(out.str(), "Los Angeles Salt Lake City Las Vegas \nFontana Park City Carson City \nUpland St. George Henderson \n");
+}
+
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

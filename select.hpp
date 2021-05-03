@@ -87,4 +87,31 @@ public:
    } 
 
 };
+
+class Select_And: public Select 
+{
+protected:
+   Select* cell1;
+   Select* cell2;
+public:
+   Select_And(Select* first, Select* second) {
+	cell1 = first;
+	cell2 = second;
+   }
+
+   ~Select_And() {
+   	delete cell1;
+	delete cell2;
+   }
+
+   virtual bool select(const Spreadsheet* sheet, int row) const {
+  	if (cell1->select(sheet, row) == true && cell2->select(sheet, row) == true) {
+		return true; 
+	}
+	else {
+		return false;
+	}
+   }
+};
+
 #endif //__SELECT_HPP__
