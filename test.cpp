@@ -144,22 +144,75 @@ TEST(Print_Selection, Select_NotSubString) {
 }
 
 //-----------------------
-//Test for Select_Add
+//Test for Select_And
 
-TEST(Print_Selection, Select_AndSubString) {
+TEST(Print_Selection, Select_AndwithSelect_Not) {
+        Spreadsheet sheet;
+        sheet.set_column_names({"Soccer", "Basketball", "Football"});
+        sheet.add_row({"Barcelona", "Lakers", "Raiders"});
+        sheet.add_row({"Real Madrid", "Spurs", "Packers"});
+        sheet.add_row({"PSG", "Lakers", "Jets"});
+        sheet.add_row({"Barcelona", "Lakers", "Raiders"});
+        sheet.add_row({"Chivas", "Clippers", "Raid"});
+        stringstream output;
+        sheet.set_selection(new Select_And(
+                new Select_Contains(&sheet, "Football", "Raid"),
+                        new Select_Not(
+                                new Select_Contains(&sheet, "Soccer", "Barcelona"))));
+        sheet.print_selection(output);
+        EXPECT_EQ(output.str(), "Chivas Clippers Raid \n");
+}
+
+TEST(Print_Selection, Select_AndwithNotwithEmptyString) { 
 	Spreadsheet sheet;
 	sheet.set_column_names({"California", "Utah", "Nevada"});
 	sheet.add_row({"Los Angeles", "Salt Lake City", "Las Vegas"});
 	sheet.add_row({"Fontana", "Park City", "Carson City"});
 	sheet.add_row({"Riverside", "Ogden", "Reno"});
 	sheet.add_row({"Upland", "St. George", "Henderson"});
-	stringstream out;
+	stringstream output;
 	sheet.set_selection(
 	    new Select_And(
-		new Select_Contains(&sheet, "California", "Fontana"),
-		new Select_Contains(&sheet, "Nevada", "Las Vegas")));
-	sheet.print_selection(out);
-	EXPECT_EQ(out.str(), "Los Angeles Salt Lake City Las Vegas \nFontana Park City Carson City \nUpland St. George Henderson \n");
+		new Select_Contains(&sheet, "California", ""),
+		new Select_Not(
+			new Select_Contains(&sheet, "Nevada", "Las Vegas"))));
+	sheet.print_selection(output);
+	EXPECT_EQ(output.str(), "Fontana Park City Carson City \nRiverside Ogden Reno \nUpland St. George Henderson \n");
+}
+
+TEST(Print_Selection, Select_AndwithTwoNots) { 
+	Spreadsheet sheet;
+	sheet.set_column_names({"California", "Utah", "Nevada"});
+	sheet.add_row({"Los Angeles", "Salt Lake City", "Las Vegas"});
+	sheet.add_row({"Fontana", "Park City", "Carson City"});
+	sheet.add_row({"Riverside", "Ogden", "Reno"});
+	sheet.add_row({"Upland", "St. George", "Henderson"});
+	stringstream output;
+	sheet.set_selection(
+	    new Select_And(
+		new Select_Not(
+			new Select_Contains(&sheet, "California", "Fontana")),
+		new Select_Not(
+			new Select_Contains(&sheet, "Nevada", "Las Vegas"))));
+	sheet.print_selection(output);
+	EXPECT_EQ(output.str(), "Riverside Ogden Reno \nUpland St. George Henderson \n");
+}
+
+TEST(Print_Selection, Select_AndwithUnknownString) { 
+	Spreadsheet sheet;
+	sheet.set_column_names({"California", "Utah", "Nevada"});
+	sheet.add_row({"Los Angeles", "Salt Lake City", "Las Vegas"});
+	sheet.add_row({"Fontana", "Park City", "Carson City"});
+	sheet.add_row({"Riverside", "Ogden", "Reno"});
+	sheet.add_row({"Upland", "St. George", "Henderson"});
+	stringstream output;
+	sheet.set_selection(
+	    new Select_And(
+		new Select_Contains(&sheet, "California", "River"),
+		new Select_Not(
+			new Select_Contains(&sheet, "Nevada", "Mass"))));
+	sheet.print_selection(output);
+	EXPECT_EQ(output.str(), "Riverside Ogden Reno \n");
 }
 
 
