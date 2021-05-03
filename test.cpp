@@ -215,6 +215,89 @@ TEST(Print_Selection, Select_AndwithUnknownString) {
 	EXPECT_EQ(output.str(), "Riverside Ogden Reno \n");
 }
 
+//-----------------------
+//Test for Select_Or
+
+TEST(Print_Selection, Select_OrwithSelect_Contain) {
+	Spreadsheet sheet;
+	sheet.set_column_names({"Soccer", "Basketball", "Football"});
+	sheet.add_row({"Real Madrid", "Lakers", "Raiders"});
+	sheet.add_row({"PSG", "Celtics", "Jets"});
+	sheet.add_row({"Barcelona", "Jazz", "Broncos"});
+	sheet.add_row({"Arsenal", "Suns", "Steelers"});
+	stringstream output;
+	sheet.set_selection(new Select_Or(
+		new Select_Contains(&sheet, "Basketball", "Lake"),
+			new Select_Contains(&sheet, "Soccer", "Real")));
+	sheet.print_selection(output);
+	EXPECT_EQ(output.str(), "Real Madrid Lakers Raiders \n");
+}
+
+TEST(Print_Selection, Select_OrwithSelect_Not) {
+	Spreadsheet sheet;
+	sheet.set_column_names({"Soccer", "Basketball", "Football"});
+	sheet.add_row({"Real Madrid", "Lakers", "Raiders"});
+	sheet.add_row({"PSG", "Celtics", "Jets"});
+	sheet.add_row({"Barcelona", "Jazz", "Broncos"});
+	sheet.add_row({"Arsenal", "Suns", "Steelers"});
+	stringstream output;
+	sheet.set_selection(new Select_Or(
+		new Select_Not(
+			new Select_Contains(&sheet,  "Football", "Broncos")),
+				new Select_Contains(&sheet, "Basketball", "Sun")));
+	sheet.print_selection(output);
+	EXPECT_EQ(output.str(), "Real Madrid Lakers Raiders \nPSG Celtics Jets \nArsenal Suns Steelers \n");
+}
+
+TEST(Print_Selection, Select_OrwithInvalidInput) {
+	Spreadsheet sheet;
+	sheet.set_column_names({"Soccer", "Basketball", "Football"});
+	sheet.add_row({"Real Madrid", "Lakers", "Raiders"});
+	sheet.add_row({"PSG", "Celtics", "Jets"});
+	sheet.add_row({"Barcelona", "Jazz", "Broncos"});
+	sheet.add_row({"Arsenal", "Suns", "Steelers"});
+	stringstream output;
+	sheet.set_selection(new Select_Or(
+		new Select_Contains(&sheet, "Basketball", "Lake"),
+			new Select_Contains(&sheet, "Soccer", "Meal")));
+	sheet.print_selection(output);
+	EXPECT_EQ(output.str(), "Real Madrid Lakers Raiders \n");
+}
+
+TEST(Print_Selection, Select_OrEmptyString) {	
+	Spreadsheet sheet;
+	sheet.set_column_names({"Animals", "Fruits", "Plants"});
+	sheet.add_row({"Dog", "banana", "Flower"});
+	sheet.add_row({"dog", "Apple", "rose"});
+	sheet.add_row({"cat", "Banana", "Moss"});
+	sheet.add_row({"tiger", "Watermelon", "Geranium"});
+	sheet.add_row({"lion", "melon", "ivy"});
+	stringstream output;
+	sheet.set_selection(new Select_Or(
+		new Select_Contains(&sheet, "Fruits", "ban"),
+			new Select_Contains(&sheet, "Plants", "")));
+	sheet.print_selection(output);
+	EXPECT_EQ(output.str(),"Dog banana Flower \ndog Apple rose \ncat Banana Moss \ntiger Watermelon Geranium \nlion melon ivy \n");	
+}
+
+TEST(Print_Selection, Select_OrSameColumns) {	
+	Spreadsheet sheet;
+	sheet.set_column_names({"Animals", "Animals", "Plants"});
+	sheet.add_row({"Dog", "banana", "Flower"});
+	sheet.add_row({"dog", "Apple", "rose"});
+	sheet.add_row({"cat", "Banana", "Moss"});
+	sheet.add_row({"tiger", "Watermelon", "Geranium"});
+	sheet.add_row({"lion", "melon", "ivy"});
+	stringstream output;
+	sheet.set_selection(new Select_Or(
+		new Select_Contains(&sheet, "Animals", "Dog"),
+			new Select_Contains(&sheet, "Animals", "dog")));
+	sheet.print_selection(output);
+	EXPECT_EQ(output.str(),"Dog banana Flower \ndog Apple rose \n");	
+}
+
+
+
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
